@@ -16,7 +16,7 @@ As databases evolve over time, schema changes can disrupt downstream application
   <img src="https://github.com/user-attachments/assets/c04363e9-d5ea-4857-b6d3-3590b23df09a" width="300" height="300" alt="Schema Evolution">
 </div> -->
 
-### 3️⃣ Keeping Multiple Systems in Sync
+### 3️ Keeping Multiple Systems in Sync
 Traditional batch processing methods introduce significant delays in data synchronization. Businesses require real-time updates across various systems, including databases, analytics platforms, and search indexes, to enable timely decision-making and enhance user experiences.
 
 <!-- <div style="text-align: center;">
