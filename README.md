@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-### 1️⃣ Handling Database Changes Efficiently
+### 1️ Handling Database Changes Efficiently
 When data is updated in relational databases like MySQL, downstream applications must react immediately. The main challenge is to extract and apply these changes in a simple and scalable way. Keeping database updates in sync with downstream applications is crucial to prevent data inconsistencies and performance bottlenecks.
 
 <!-- <div style="text-align: center;">
