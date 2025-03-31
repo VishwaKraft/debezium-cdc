@@ -17,19 +17,19 @@ If due to some reason databases undergo schema changes over time. Ensuring that 
 ### 3. Keeping Multiple Systems in Sync
 Traditional data synchronization methods, such as batch processing via ETL jobs and cron jobs, which significant introduce delays in data synchronization. However, businesses require real-time updates across various systems, including databases, analytics platforms, and search indexes, to make timely decisions and enhance user experience.
 <div style="display: flex; align-items: center;">
-  <img src="https://github.com/user-attachments/assets/070d3264-659a-449e-940d-a920a7f569a2" alt="Schema Evolution" width="300" style="margin-right: 20px;">
+  <img src="https://github.com/user-attachments/assets/070d3264-659a-449e-940d-a920a7f569a2" alt="Keeping Mutiple System in Sync" width="300" style="margin-right: 20px;">
 </div>
 
 ### 4. Building Event-Driven Systems
 Modern applications leverage event-driven architectures to enable functionalities such as microservices communication, real-time analytics, and fraud detection. However, streaming database changes as events without modifying existing applications remains a key challenge.
 <div style="display: flex; align-items: center;">
-  <img src="https://github.com/user-attachments/assets/43e2204c-28fb-4107-bc25-09db0a6e3e70" alt="Schema Evolution" width="300" style="margin-right: 20px;">
+  <img src="https://github.com/user-attachments/assets/43e2204c-28fb-4107-bc25-09db0a6e3e70" alt="Building Event-Driven Systems" width="300" style="margin-right: 20px;">
 </div>
 
 ### 5. Fault Tolerance & Scalability
 Polling-based approaches that periodically query databases introduce performance bottlenecks and are not scalable. A robust solution must provide fault tolerance while efficiently capturing and processing changes.
 <div style="display: flex; align-items: center;">
-  <img src="https://github.com/user-attachments/assets/1dd75a3f-bbc5-4b1d-9125-8fdb8d2a6e0f" alt="Schema Evolution" width="300" style="margin-right: 20px;">
+  <img src="https://github.com/user-attachments/assets/1dd75a3f-bbc5-4b1d-9125-8fdb8d2a6e0f" alt="Fault Tolerance" width="300" style="margin-right: 20px;">
 </div>
 
 ## Conclusion of problem statement 
