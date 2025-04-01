@@ -382,3 +382,7 @@ This architecture allows businesses to **react to changes instantly** while main
 ---
 🚀 **This enables instant insights into database changes without affecting transactional database performance!**
 
+# Workflow:
+![Workflow 1.png](https://github.com/Datavolt/debezium-cdc/blob/main/docs/images/Workflow%201.png)
+![Workflow 2.png](https://github.com/Datavolt/debezium-cdc/blob/main/docs/images/Workflow%202.png)
+
