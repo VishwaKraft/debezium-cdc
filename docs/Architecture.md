@@ -4,6 +4,10 @@
 Debezium is an open-source Change Data Capture (CDC) tool that tracks database changes in real time and streams them to external systems like Kafka. It captures inserts, updates, and deletes without modifying the database itself, enabling seamless data synchronization across different applications.
 
 ![Debezium](./images/debezium-architecture.png)
+<div style="display: flex; justify-content: center; gap: 20px;">
+    <img src="https://github.com/Datavolt/debezium-cdc/blob/main/docs/images/Workflow%201.png" alt="Workflow 1" width="45%">
+    <img src="https://github.com/Datavolt/debezium-cdc/blob/main/docs/images/Workflow%202.png" alt="Workflow 2" width="45%">
+</div>
 
 ---
 ## What is Debezium CDC?
