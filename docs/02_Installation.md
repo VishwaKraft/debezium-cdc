@@ -1,118 +1,56 @@
-# Docker & Docker Desktop Setup Guide
+# Real-Time Data Synchronization - Installation Guide
 
-## 1. Installation Steps
+## Overview
+This guide provides step-by-step instructions for setting up a real-time data synchronization system using Debezium CDC, MySQL as the source database, Kafka as the streaming platform, and ClickHouse as the sink. The installation process is divided into multiple sections for better organization and ease of implementation.
 
-### **1. Install Docker Desktop (Windows/macOS)**
+By following this guide, you will be able to:
+- Set up MySQL as the source database with Change Data Capture (CDC) enabled.
+- Install and configure Kafka for real-time event streaming.
+- Deploy Debezium as a Kafka Connect source to capture changes from MySQL.
+- Configure ClickHouse as a sink to store and process streaming data efficiently.
 
-#### **Windows**
-1. Download Docker Desktop from [Docker's official site](https://www.docker.com/products/docker-desktop/).
-2. Run the installer and follow the instructions.
-3. During installation, select **"Use WSL 2 instead of Hyper-V"** if available.
-4. After installation, restart your system.
-5. Open Docker Desktop and ensure it runs without errors.
-6. Verify installation by running:
-   ```sh
-   docker --version
-   ```
+## Prerequisites
+Before you begin, ensure that you meet the following requirements:
 
-#### **macOS**
-1. Download Docker Desktop for Mac from [Docker's official site](https://www.docker.com/products/docker-desktop/).
-2. Open the `.dmg` file and drag Docker into the **Applications** folder.
-3. Open Docker Desktop and follow the setup process.
-4. Verify installation:
-   ```sh
-   docker --version
-   ```
+- **Docker and Docker Compose** (if using containerized deployment).
+- **MySQL 8.0+** with binary logging enabled.
+- **Apache Kafka** (latest stable version) installed and configured.
+- **ClickHouse** installed and running.
+- **Kafka Connect with Debezium MySQL connector**.
+- **Appropriate user permissions** in MySQL for Debezium to read binlogs.
 
-### **2. Install Docker on Linux**
+## Installation Steps
+To set up the complete system, follow these individual installation guides:
 
-#### **Ubuntu/Debian**
-1. Update the package list:
-   ```sh
-   sudo apt update
-   ```
-2. Install required dependencies:
-   ```sh
-   sudo apt install -y ca-certificates curl gnupg
-   ```
-3. Add Docker’s official GPG key:
-   ```sh
-   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-   ```
-4. Add Docker repository:
-   ```sh
-   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-   ```
-5. Install Docker Engine:
-   ```sh
-   sudo apt update && sudo apt install -y docker-ce docker-ce-cli containerd.io
-   ```
-6. Start and enable Docker:
-   ```sh
-   sudo systemctl start docker
-   sudo systemctl enable docker
-   ```
-7. Verify installation:
-   ```sh
-   docker --version
-   ```
+1. **MySQL as Source**  
+   - Setup MySQL database and configure it for Debezium CDC.
+   - Enable binlog and configure necessary settings.
+   - [Read MySQL Source Installation Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/03_MySQL_Source.md)
 
-### **3. Post Installation (Optional but Recommended)**
+2. **Kafka Installation**  
+   - Install and configure Kafka for event streaming.
+   - Setup Zookeeper and Kafka brokers.
+   - [Read Kafka Installation Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/04_kafka_installation.md)
 
-#### **Linux: Run Docker Without Sudo**
-```sh
-sudo usermod -aG docker $USER
-newgrp docker
-```
+3. **Debezium Installation**  
+   - Install Debezium and configure it as a Kafka Connect source.
+   - Setup Debezium connectors for MySQL.
+   - [Read Debezium Installation Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/06_debezium_installation.md)
 
-### **4. Verify Docker Installation**
-Run the following command to check if Docker is working correctly:
-```sh
-docker run hello-world
-```
-If Docker is properly installed, you should see a message confirming that Docker is running.
+4. **ClickHouse as Sink**  
+   - Install ClickHouse and configure it to consume Kafka topics.
+   - Setup ClickHouse Kafka engine for data ingestion.
+   - [Read ClickHouse Sink Installation Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/05_Clickhouse_Sink.md)
+   - 
+## Conclusion
+Once you have completed the installation and setup of MySQL, Kafka, Debezium, and ClickHouse, your real-time data synchronization system will be ready. 
 
----
+To ensure smooth operation:
+- Monitor Kafka topics and ensure they are correctly streaming data.
+- Regularly check MySQL binlogs and Debezium connector status.
+- Optimize ClickHouse ingestion performance for high throughput.
 
-## 2. Uninstall Docker
+For further customization and advanced configurations, refer to the detailed installation guides linked above.
 
-### **Windows/macOS**
-- Open Docker Desktop and navigate to **Settings > Troubleshoot**.
-- Click **Uninstall**.
 
-### **Linux (Ubuntu/Debian)**
-```sh
-sudo apt remove -y docker-ce docker-ce-cli containerd.io
-sudo apt autoremove -y
-```
 
----
-
-## 3. Pull and Run MySQL Container in Docker
-
-### **Pull MySQL Image**
-To download the latest MySQL image, run:
-```sh
-docker pull mysql:latest
-```
-
-### **Run MySQL Container**
-To start a MySQL container, use:
-```sh
-docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 -d mysql:latest
-```
-- `--name mysql-container` → Assigns a name to the container.
-- `-e MYSQL_ROOT_PASSWORD=root` → Sets the root password for MySQL.
-- `-p 3306:3306` → Maps MySQL's port to the host.
-- `-d` → Runs the container in detached mode.
-
-### **Verify Running Container**
-```sh
-docker ps
-```
-
-### **Access MySQL CLI**
-```sh
-docker exec -it mysql-container mysql -uroot -p
-```
-Enter the password (`root`) when prompted.
