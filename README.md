@@ -39,54 +39,45 @@ Polling-based approaches that periodically query databases introduce performance
 
 ---
 
+---
+
 ## ✅ Solution: Debezium for Change Data Capture (CDC)
 Debezium is an open-source distributed platform that captures database changes in real-time and streams them to other systems like Kafka. By leveraging Debezium, we can efficiently propagate changes without modifying existing applications.
 
 ### 📌 Architecture Overview
-For a detailed explanation of the architecture, refer to <!-- [Architecture.md](https://github.com/Datavolt/debezium-cdc/blob/main/docs/Architecture.md). -->
+For a detailed explanation of the architecture, refer to [Architecture Overview](https://github.com/Datavolt/debezium-cdc/blob/main/docs/01_Architecture.md).
 
 ### 🔗 Components
+
 1. **MySQL as the Source Database**
-   - Captures change events using MySQL binlog.
-   - Configured as a Debezium source.
-   - Refer to the setup guide: <!-- [MySQL_Source.md](https://github.com/Datavolt/debezium-cdc/blob/main/docs/MySQL_Source.md) -->
+    - Captures change events using MySQL binlog.
+    - Configured as a Debezium source.
+    - Refer to the setup guide: [MySQL Setup Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/03_MySQL_Source.md)
 
 2. **Kafka as the Event Streaming Platform**
-   - Acts as a message broker for change events.
-   - Provides durable storage and event replay capabilities.
+    - Acts as a message broker for change events.
+    - Provides durable storage and event replay capabilities.
+    - Refer to the setup guide: [Kafka Installation Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/04_kafka_installation.md)
 
 3. **ClickHouse as the Sink Database**
-   - Consumes events from Kafka and applies changes.
-   - Optimized for fast analytics and real-time queries.
-   - Refer to the setup guide: <!-- [ClickHouse_Sink.md](https://github.com/Datavolt/debezium-cdc/blob/main/docs/Clickhouse_Sink.md) -->
+    - Consumes events from Kafka and applies changes.
+    - Optimized for fast analytics and real-time queries.
+    - Refer to the setup guide: [ClickHouse Setup Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/05_Clickhouse_Sink.md)
+
+4. **Debezium as the CDC Engine**
+    - Listens for changes in MySQL and publishes them to Kafka.
+    - Ensures real-time data propagation.
+    - Refer to the setup guide: [Debezium Installation Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/06_debezium_installation.md)
 
 ---
 
-<!-- ## ⚙️ Setting Up the Real-Time Sync System
+## ⚙️ Setting Up the Real-Time Sync System
+
 ### 📌 Prerequisites
 - 🐳 Docker and Docker Compose installed
 - 🦜 Kafka and Zookeeper running
 - 🛢️ MySQL with binlog enabled
 - 📊 ClickHouse for real-time analytics
-
-### 🚀 Steps to Deploy
-1. **Start Kafka & Zookeeper:**
-   ```bash
-   docker-compose up -d kafka zookeeper
-   ```
-2. **Configure MySQL as Debezium Source:** (Refer to [MySQL Source Documentation](https://github.com/Datavolt/debezium-cdc/blob/main/docs/MySQL_Source.md))
-3. **Deploy Debezium Connector:**
-   ```bash
-   curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" \
-       --data '{"name": "inventory-connector", "config": { ... }}' \
-       http://localhost:8083/connectors
-   ```
-4. **Configure ClickHouse Sink:** (Refer to [ClickHouse Sink Documentation](https://github.com/Datavolt/debezium-cdc/blob/main/docs/Clickhouse_Sink.md))
-5. **Monitor Data Flow in Kafka Topics:**
-   ```bash
-   kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic dbserver1.inventory.customers --from-beginning
-   ```
---> 
 
 ## 🎯 Conclusion
 By integrating **Debezium**, **Kafka**, and **ClickHouse**, we can build a real-time, event-driven data synchronization system that ensures **consistency, scalability, and fault tolerance**. This architecture enables seamless database change propagation **without performance bottlenecks**, allowing businesses to leverage **real-time analytics and event-driven processing** effectively.
