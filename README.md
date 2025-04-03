@@ -1,6 +1,6 @@
-# Real-Time Data Synchronization & Event-Driven Architectures🚀
+# Real-Time Data Synchronization & Event-Driven Architectures
 
-## 📌 Problem Statement
+## Problem Statement
 
 ### 1️⃣ Handling Database Changes Efficiently
 When data is updated in relational databases like MySQL, downstream applications must react immediately. The main challenge is to extract and apply these changes in a simple and scalable way. Keeping database updates in sync with downstream applications is crucial to prevent data inconsistencies and performance bottlenecks.
@@ -44,10 +44,10 @@ Polling-based approaches that periodically query databases introduce performance
 ## ✅ Solution: Debezium for Change Data Capture (CDC)
 Debezium is an open-source distributed platform that captures database changes in real-time and streams them to other systems like Kafka. By leveraging Debezium, we can efficiently propagate changes without modifying existing applications.
 
-### 📌 Architecture Overview
+### Architecture Overview
 For a detailed explanation of the architecture, refer to [Architecture Overview](https://github.com/Datavolt/debezium-cdc/blob/main/docs/01_Architecture.md).
 
-### 🔗 Components
+### Components
 
 1. **MySQL as the Source Database**
     - Captures change events using MySQL binlog.
@@ -71,13 +71,13 @@ For a detailed explanation of the architecture, refer to [Architecture Overview]
 
 ---
 
-## ⚙️ Setting Up the Real-Time Sync System
+## Setting Up the Real-Time Sync System
 
-### 📌 Prerequisites
-- 🐳 Docker and Docker Compose installed
-- 🦜 Kafka and Zookeeper running
-- 🛢️ MySQL with binlog enabled
-- 📊 ClickHouse for real-time analytics
+### Prerequisites
+- Docker and Docker Compose installed
+- Kafka and Zookeeper running
+- MySQL with binlog enabled
+- ClickHouse for real-time analytics
 
-## 🎯 Conclusion
+## Conclusion
 By integrating **Debezium**, **Kafka**, and **ClickHouse**, we can build a real-time, event-driven data synchronization system that ensures **consistency, scalability, and fault tolerance**. This architecture enables seamless database change propagation **without performance bottlenecks**, allowing businesses to leverage **real-time analytics and event-driven processing** effectively.
