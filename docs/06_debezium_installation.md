@@ -3,7 +3,7 @@
 ## What is Debezium?
 Debezium is an open-source distributed **Change Data Capture (CDC)** platform that allows applications to track changes in databases in real time. It captures changes from database logs and streams them into Kafka topics, making them available for consumers like ClickHouse, Elasticsearch, or other applications.
 
-📖 **Reference:** [Debezium Official Documentation](https://debezium.io/documentation/reference/3.1/)
+**Reference:** [Debezium Official Documentation](https://debezium.io/documentation/reference/3.1/)
 
 ## Why Use Debezium?
 Debezium enables real-time data synchronization and event-driven architectures with:
@@ -12,7 +12,7 @@ Debezium enables real-time data synchronization and event-driven architectures w
 - **Scalability**: Works efficiently with distributed architectures.
 - **Flexibility**: Supports various databases like MySQL, PostgreSQL, SQL Server, and MongoDB.
 
-📖 **Reference:** [Introduction to Debezium](https://debezium.io/documentation/reference/3.1/introduction.html)
+**Reference:** [Introduction to Debezium](https://debezium.io/documentation/reference/3.1/introduction.html)
 
 ## Installation Methods
 Debezium can be installed in different ways, depending on the setup requirements:
@@ -74,7 +74,7 @@ Start the services:
 docker-compose up -d
 ```
 
-📖 **Reference:** [Debezium with Docker](https://debezium.io/documentation/reference/3.1/operations/installation.html)
+**Reference:** [Debezium with Docker](https://debezium.io/documentation/reference/3.1/operations/installation.html)
 
 ## Configuring the Debezium Connector for MySQL
 Once Debezium is running, register the MySQL connector using the following JSON configuration (`mysql-connector.json`):
@@ -101,28 +101,22 @@ Register the connector:
 curl -X POST -H "Content-Type: application/json" --data @mysql-connector.json http://localhost:8083/connectors
 ```
 
-📖 **Reference:** [Debezium MySQL Connector](https://debezium.io/documentation/reference/3.1/connectors/mysql.html)
+**Reference:** [Debezium MySQL Connector](https://debezium.io/documentation/reference/3.1/connectors/mysql.html)
 
 ## Verifying Debezium is Capturing Changes
 To ensure Debezium is capturing changes:
 1. **Check Registered Connectors**
    ```sh
-   curl -s http://localhost:8083/connectors | jq .
+   curl -s http://localhost:8083/connectors 
    ```
 2. **Consume Kafka Messages**
    ```sh
    docker run --rm --net=host confluentinc/cp-kafkacat kafkacat -b localhost:9092 -t inventory -C -o beginning
    ```
 
-📖 **Reference:** [Debezium Monitoring](https://debezium.io/documentation/reference/3.1/operations/monitoring.html)
+**Reference:** [Debezium Monitoring](https://debezium.io/documentation/reference/3.1/operations/monitoring.html)
 
-## Best Practices and Considerations
-- **Ensure binlogs are enabled** in MySQL for CDC to work.
-- **Use separate Kafka topics** for different tables to improve scalability.
-- **Monitor Kafka and Debezium** using Prometheus and Grafana.
-- **Fine-tune Kafka retention policies** for better performance.
-
-📖 **Further Reading:**
+**Further Reading:**
 - [Debezium Configuration](https://debezium.io/documentation/reference/3.1/configuration.html)
 - [Kafka Connect Configuration](https://docs.confluent.io/platform/current/connect/index.html)
 - [MySQL Binlog Setup](https://dev.mysql.com/doc/refman/8.0/en/binary-log.html)
