@@ -54,17 +54,8 @@ docker-compose up -d
 ```
 
 This method makes it easier to manage, modify, and scale the setup. Let me know if you need any refinements! 🚀
-### 3. Verify MySQL Configuration
-After the container is running, verify that binlogs are enabled:
 
-```sh
-docker exec -it mysql-cdc mysql -uroot -proot -e "SHOW VARIABLES LIKE 'log_bin';"
-docker exec -it mysql-cdc mysql -uroot -proot -e "SHOW VARIABLES LIKE 'binlog_format';"
-```
-
-Ensure that `log_bin` is `ON` and `binlog_format` is `ROW`.
-
-### 4. Create a Debezium User in MySQL
+### 3. Create a Debezium User in MySQL
 
 Connect to the MySQL instance:
 
@@ -85,45 +76,7 @@ Exit MySQL:
 exit
 ```
 
-## Transaction Logs in MySQL and Other Databases
-
-### MySQL Binlogs
-
-- MySQL uses **binary logs (binlogs)** to record all changes to database tables.
-- Binlogs capture events in a sequential manner, enabling replication and CDC.
-- Debezium reads binlogs and converts changes into Kafka events.
-
-### Comparison with Other Databases
-
-- **PostgreSQL**: Uses **Write-Ahead Logs (WAL)** for transaction logging.
-- **SQL Server**: Uses **Change Data Capture (CDC) and Transaction Logs**.
-- **Oracle**: Uses **Redo Logs** for tracking changes.
-
-## Checking and Enabling Binlogs in MySQL
-
-### Checking Binlog Status
-
-To check if binlogs are enabled, run:
-
-```sh
-docker exec -it mysql-cdc mysql -uroot -proot -e "SHOW VARIABLES LIKE 'log_bin';"
-```
-
-If `log_bin` is set to `ON`, binlogs are enabled.
-
-### Enabling Binlogs
-
-If binlogs are not enabled, restart the MySQL container with the correct configuration as mentioned in the installation section.
-
-## Other Important Considerations
-
-### Binlog Configuration Best Practices
-
-- **`binlog_format=ROW`**: Required for Debezium to capture row-level changes.
-- **`binlog_row_image=FULL`**: Ensures full row data is available in change events.
-- **Retention Policy**: Configure `expire_logs_days` or `binlog_expire_logs_seconds` to manage binlog storage.
-
-### Performance Considerations
+## Performance Considerations
 
 - **Disk Space Management**: Large binlogs can impact storage. Tune retention settings appropriately.
 - **Replication & Failover**: If using MySQL replication, ensure Debezium reads from a replica to reduce load on the primary.
@@ -150,6 +103,30 @@ If binlogs are not enabled, restart the MySQL container with the correct configu
 }
 ```
 
+## Transaction Logs in MySQL
+
+### MySQL Binlogs
+
+- MySQL uses **binary logs (binlogs)** to record all changes to database tables.
+- Binlogs capture events in a sequential manner, enabling replication and CDC.
+- Debezium reads binlogs and converts changes into Kafka events.
+
+## Checking and Enabling Binlogs in MySQL
+
+### Checking Binlog Status
+
+To check if binlogs are enabled, run:
+
+```sh
+docker exec -it mysql-cdc mysql -uroot -proot -e "SHOW VARIABLES LIKE 'log_bin';"
+```
+
+If `log_bin` is set to `ON`, binlogs are enabled.
+
+### Enabling Binlogs
+
+If binlogs are not enabled, restart the MySQL container with the correct configuration as mentioned in the installation section.
+
 ## MySQL Binary Log Configuration
 
 ### Verifying Binlog Status
@@ -158,46 +135,6 @@ SHOW VARIABLES LIKE 'log_bin';
 SHOW VARIABLES LIKE 'binlog_format';
 SHOW VARIABLES LIKE 'binlog_row_image';
 ```
-## Change Data Capture Process
-
-### How Debezium Captures Changes
-1. Takes initial snapshot of tables (optional)
-2. Begins reading from binlog position
-3. Converts changes into events
-4. Writes events to Kafka topics
-
-### Event Message Structure
-```json
-{
-  "before": null,
-  "after": {
-    "id": 1004,
-    "first_name": "Anne",
-    "last_name": "Kretchmar",
-    "email": "annek@noanswer.org"
-  },
-  "source": {
-    "version": "1.9.7.Final",
-    "connector": "mysql",
-    "name": "dbserver1",
-    "ts_ms": 1465491410000,
-    "snapshot": "true",
-    "db": "inventory",
-    "table": "customers",
-    "server_id": 223344,
-    "gtid": null,
-    "file": "mysql-bin.000003",
-    "pos": 154,
-    "row": 0,
-    "thread": 7,
-    "query": null
-  },
-  "op": "c",
-  "ts_ms": 1465491410000,
-  "transaction": null
-}
-```
-
 
 ## Next Steps
 
