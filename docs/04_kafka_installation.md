@@ -48,54 +48,7 @@ To check the logs and confirm that Kafka has started successfully:
 docker logs -f kafka
 ```
 
-**Reference:** [Confluent Kafka Docker Documentation](https://docs.confluent.io/platform/current/installation/docker.html)
-
-### 2. Installing Kafka Manually (Without Docker)
-
-#### Step 1: Download Apache Kafka
-```sh
-wget https://downloads.apache.org/kafka/3.5.1/kafka_2.13-3.5.1.tgz
-```
-
-#### Step 2: Extract Kafka
-```sh
-tar -xvzf kafka_2.13-3.5.1.tgz
-cd kafka_2.13-3.5.1
-```
-
-#### Step 3: Start ZooKeeper
-```sh
-bin/zookeeper-server-start.sh config/zookeeper.properties
-```
-
-#### Step 4: Start Kafka Server
-```sh
-bin/kafka-server-start.sh config/server.properties
-```
-
-**Reference:** [Apache Kafka Quick Start](https://kafka.apache.org/quickstart)
-
-### 3. Installing Kafka via Package Managers
-
-#### **On Ubuntu (Using APT)**
-```sh
-sudo apt update && sudo apt install kafka
-```
-
-#### **On macOS (Using Homebrew)**
-```sh
-brew install kafka
-```
-
-### 4. Running Kafka in Kubernetes
-If you need Kafka on Kubernetes, you can deploy it using Helm:
-```sh
-helm repo add confluentinc https://packages.confluent.io/helm
-helm install my-kafka confluentinc/cp-helm-charts
-```
-
-**Reference:** [Confluent Helm Charts](https://docs.confluent.io/operator/current/co-deployment.html)
-
+**Reference:**[Apache Kafka](https://kafka.apache.org/documentation/#connectconfigs) ,[Confluent Kafka Docker Documentation](https://docs.confluent.io/platform/current/installation/docker.html)
 ---
 
 ## Understanding Kafka
@@ -133,25 +86,6 @@ ZooKeeper helps Kafka manage:
 - Kafka 3.x introduces KRaft (Kafka Raft) mode, removing the need for ZooKeeper and improving scalability.
 
 **Reference:** [ZooKeeper Overview](https://zookeeper.apache.org/doc/current/zookeeperOver.html)
-
-## Why We Use Kafka in Real-Time Sync with Debezium CDC, MySQL, and ClickHouse
-
-### Role of Kafka in Real-Time Data Streaming
-Kafka serves as the central event streaming platform in our architecture. It plays a crucial role in **capturing, processing, and delivering** real-time change data from MySQL to ClickHouse using Debezium CDC.
-
-### How Kafka Works in This Architecture
-1. **Debezium Captures Changes from MySQL:**
-    - Debezium listens to MySQL binlog changes and produces **CDC events**.
-    - These events (INSERT, UPDATE, DELETE) are published to Kafka topics.
-
-2. **Kafka Acts as an Event Hub:**
-    - Kafka decouples the source (MySQL) from the sink (ClickHouse), ensuring reliable data streaming.
-    - Kafka provides **durability, fault tolerance, and scalability** for processing CDC events.
-    - Multiple consumers can process the same events in different ways (analytics, monitoring, etc.).
-
-3. **ClickHouse Consumes Kafka Topics:**
-    - ClickHouse reads the Kafka topics using **Kafka engine tables**.
-    - It processes and stores data efficiently for **real-time analytics**.
 
 ### Why Kafka is Essential for This Pipeline
 - **Scalability:** Kafka efficiently handles large-scale data changes.
