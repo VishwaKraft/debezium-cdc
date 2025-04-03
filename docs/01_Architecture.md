@@ -1,130 +1,108 @@
 # Real-Time Data Synchronization Architecture using Debezium CDC, MySQL, Kafka, and ClickHouse
 
 ## Overview
-Debezium is an open-source Change Data Capture (CDC) tool that tracks database changes in real time and streams them to external systems like Kafka. It captures inserts, updates, and deletes without modifying the database itself, enabling seamless data synchronization across different applications.
+### What is Change Data Capture?
+CDC is a process that allows organizations to automatically identify and capture database changes. It provides real-time data movements by continuously capturing and processing data as soon as a database event occurs. There are different methods of performing the CDC process, but basically we can divide it into the following two categories:
 
+- **Log-based** (by tracking database transaction logs)
+- **Query-based** (with Trigger, Timestamp, Snapshot)
+
+A common and effective use is the use of database transaction logs. While other methods impose additional load on the database (such as requiring a regular query in the "timestamp" method), this is not the case when reading existing transaction logs.
+
+---
+### What is Debezium and where is it located in the CDC process?
+Based on its most common usage, Debezium is a tool built on top of [Kafka](https://kafka.apache.org/documentation.html#gettingStarted) that provides a set of [Kafka Connect](https://kafka.apache.org/documentation.html#connect) compatible connectors. It transforms information in your existing databases into event streams, allowing applications to detect and instantly respond to row-level changes in databases. For this, [Debezium connectors](https://debezium.io/documentation/reference/stable/install.html) must be present in the Kafka Connect cluster.
+
+If we briefly touch on Kafka Connect due to its important role here, it is a Kafka-dependent tool that provides data flow between Apache Kafka and other systems in a scalable and reliable way. It is possible to easily define and manage connectors to the Kafka Connect cluster via the REST API interface.
+
+---
 ![Debezium](./images/debezium-architecture.png)
+
 <div style="display: flex; justify-content: center; gap: 20px;">
     <img src="https://github.com/Datavolt/debezium-cdc/blob/main/docs/images/Workflow%201.png" alt="Workflow 1" width="45%">
     <img src="https://github.com/Datavolt/debezium-cdc/blob/main/docs/images/Workflow%202.png" alt="Workflow 2" width="45%">
 </div>
 
 ---
-## What is Debezium CDC?
-CDC (Change Data Capture) is the process of detecting and capturing changes (new data, updates, deletions) in a database. Debezium continuously monitors database logs and sends these changes as structured events to Kafka topics.
 
-### **Key Benefits of Using Debezium CDC:**
-1. **Real-time data updates** for downstream applications.
-2. **Ensures data consistency** across multiple services.
-3. **Eliminates traditional ETL batch jobs**, improving efficiency.
+Debezium offers connectors for [Cassandra, Db2, MongoDB, MySQL, Oracle Database, Postgresql, SQL Server, Vitess databases](https://debezium.io/documentation/reference/stable/connectors/index.html). Additionally, it can be used as an embedded library in custom Java applications or as a completely standalone server.
 
 ---
-## **How Debezium Streams Changes to Kafka**
-Debezium connects to a database and listens for changes using its transaction logs (binlog, WAL, etc.). The process follows this sequence:
+### **Architecture Overview**
+This architecture enables real-time Change Data Capture (CDC) using Debezium, Kafka, and ClickHouse. The key components include:
+- **MySQL as the source database** – Stores transactional data.
+- **Debezium as the CDC tool** – Captures changes from MySQL binlog ([Debezium Documentation](https://debezium.io/documentation/)).
+- **Kafka as the data streaming platform** – Transports change events to consumers ([Apache Kafka Guide](https://kafka.apache.org/documentation/)).
+- **ClickHouse as the sink database** – Stores data for analytical processing.
+- **Kafka Connectors** – Used for integrating the source (MySQL) and the sink (ClickHouse) ([Kafka Connect Docs](https://docs.confluent.io/platform/current/connect/index.html)).
+- **Schema Registry** – Manages schema evolution for Kafka topics, ensuring compatibility between producers and consumers ([Schema Registry Overview](https://docs.confluent.io/platform/current/schema-registry/index.html)).
 
-1️⃣ **Database Changes Occur** – Inserts, updates, or deletes happen in MySQL/PostgreSQL.
+### **Main Components**
 
-2️⃣ **Debezium Captures Changes** – It reads transaction logs (e.g., binlog for MySQL, WAL for PostgreSQL) to detect modifications.
+#### **1. Source Connector (Debezium for MySQL)**
+Debezium captures data changes from MySQL in real-time by monitoring its binary log (binlog). It converts these changes into structured events and publishes them to Kafka topics.
 
-3️⃣ **Debezium Sends Events to Kafka** – It transforms database changes into structured events and publishes them to Kafka topics.
+- **Types of Change Events:**
+  - `CREATE` – When a new record is inserted.
+  - `UPDATE` – When an existing record is modified.
+  - `DELETE` – When a record is removed.
+- **Event Structure:**
+  - Includes before and after values for updates.
+  - Contains metadata such as timestamps, transaction IDs, and source details.
+  - More details on event formats can be found in the [Debezium Event Model](https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-events-structure).
 
-4️⃣ **Kafka Stores & Distributes Events** – Downstream applications subscribe to Kafka topics and react in real time.
+#### **2. Kafka as the Event Broker**
+Kafka acts as the intermediary between the source (MySQL) and the sink (ClickHouse), ensuring efficient and scalable event-driven processing.
 
----
-## **Example Flow: Real-Time Inventory Sync in an E-commerce App**
-1. A **customer purchases a product** → Inventory in the database updates.
-2. **Debezium detects this change** and publishes an event to Kafka.
-3. Kafka streams this update to multiple services:
-   ✅ **Order Management System**
-   
-   ✅ **Warehouse Management**
-   
-   ✅ **Notification Service**
-5. **Each system updates accordingly**, ensuring real-time synchronization without polling the database.
+- **Kafka Topics:**
+  - Change events from MySQL are categorized into Kafka topics.
+  - Each table typically has its own Kafka topic.
+  - Events are stored temporarily and can be consumed by multiple downstream applications.
+- **Kafka Partitions:**
+  - Improve scalability and performance.
+  - Enable parallel processing by multiple consumers ([Kafka Partitioning Guide](https://developer.confluent.io/learn-kafka/architecture/partitions/)).
+- **Schema Registry:**
+  - Ensures compatibility between message formats.
+  - Prevents breaking changes in downstream consumers.
 
----
-## **Role of Kafka in the CDC Process**
-### **What is Kafka?**
-Apache Kafka is an open-source event streaming platform that facilitates real-time data exchange between systems. It acts as a message broker, ensuring efficient, scalable, and fault-tolerant data processing.
+#### **3. Sink Connector (Kafka Connect for ClickHouse)**
+A Kafka Connect sink connector reads messages from Kafka topics and inserts them into ClickHouse. This enables efficient real-time analytics and reporting.
 
-### **Kafka Topics**
-- A **Kafka topic** is a data channel where messages are stored and categorized.
-- **Producers** (e.g., Debezium) publish messages to topics.
-- **Consumers** (e.g., microservices, ClickHouse) subscribe to topics and process messages.
-- Kafka topics **retain messages** for a configurable duration, allowing multiple consumers to process them asynchronously.
+- **Batch Processing:**
+  - Messages can be processed in batches to optimize performance.
+- **Schema Mapping:**
+  - Defines how Kafka event fields are mapped to ClickHouse columns.
+- **Error Handling:**
+  - Configurable error tolerance for bad records ([Kafka Connect Error Handling](https://docs.confluent.io/platform/current/connect/references/allconfigs.html#errors)).
 
-📌 **Example Kafka Topic:** `customer_orders`
-When a new order is placed, an event is published to the `customer_orders` topic, which downstream services consume for further processing.
+### **End-to-End Data Flow**
+1. **Data Changes in MySQL** → Inserts, updates, and deletes occur.
+2. **Debezium Captures Changes** → Reads binlog and creates event messages.
+3. **Kafka Streams Events** → Events are published to Kafka topics.
+4. **Kafka Connect Moves Data to ClickHouse** → The sink connector consumes events and inserts them into ClickHouse.
+5. **ClickHouse Processes and Aggregates Data** → Enables real-time reporting and analytics.
+6. **Downstream Applications Consume Data** → Dashboards, reporting tools, and ML models use the processed data.
 
----
-## **Example: Insert Event in Kafka**
-When a new order is inserted into the `customer_orders` table, Debezium captures this and publishes an event in JSON format:
+### **Challenges and Considerations**
+- **Schema Evolution:** Ensure proper handling of schema changes in MySQL to avoid breaking downstream consumers ([Schema Evolution Best Practices](https://www.confluent.io/blog/schema-evolution-and-compatibility-in-apache-kafka/)).
+- **Event Ordering:** Kafka partitions may cause out-of-order events; use timestamps or sequence IDs for proper reordering.
+- **Throughput Optimization:** Tuning Kafka producer and consumer configurations can improve data ingestion speed ([Kafka Performance Tuning](https://developer.confluent.io/learn-kafka/performance/)).
+- **Failure Recovery:** Implement retries and dead-letter queues to handle failures gracefully ([Error Handling in Kafka](https://developer.confluent.io/learn-kafka/build-applications/error-handling/)).
 
-```json
-{
-  "before": null,
-  "after": {
-    "order_id": 12345,
-    "customer_id": 6789,
-    "order_date": "2025-04-01T12:00:00Z",
-    "total_amount": 199.99,
-    "status": "PENDING"
-  },
-  "source": {
-    "connector": "mysql",
-    "db": "ecommerce_db",
-    "table": "customer_orders"
-  },
-  "op": "c"  // 'c' stands for create (insert)
-}
-```
+### **Benefits of This Architecture**
+✅ **Decouples Source and Consumers** – Multiple applications can subscribe to changes without affecting the database.
 
-### **How Downstream Applications React**
-- Kafka consumers, such as microservices, listen for changes.
-- The **Order Processing Service** updates inventory.
-- The **Notification Service** sends a confirmation email.
-- **ClickHouse** stores events for analytics and reporting.
+✅ **Real-Time Processing** – No need for batch jobs or polling.
 
----
-## **Integration with ClickHouse for Real-Time Analytics**
-ClickHouse, a high-performance OLAP database, can be integrated with Kafka to process Debezium events for analytical workloads.
+✅ **Scalability & Fault Tolerance** – Kafka ensures reliable event delivery.
 
-### **Data Flow to ClickHouse:**
-1. **Kafka Receives Events** – Debezium streams database changes to Kafka.
-2. **Kafka Connect Moves Data to ClickHouse** – Using Kafka Connect’s ClickHouse sink connector.
-3. **ClickHouse Processes and Aggregates Data** – Provides real-time analytics for reporting.
+✅ **Optimized for Analytics** – ClickHouse enables fast queries and aggregations.
 
-📌 **Example:**
-- Analyzing **real-time sales trends** by aggregating `customer_orders` data in ClickHouse.
-- Tracking **inventory updates** to prevent stock shortages.
+✅ **Efficient Storage** – ClickHouse’s columnar storage format enhances performance for analytical queries.
 
----
-## **End-to-End Architecture Overview**
-### **Real-Time CDC Workflow**
-1️⃣ **MySQL Database** → Stores operational data.
+✅ **Low Latency** – Ensures near real-time synchronization between MySQL and ClickHouse.
 
-2️⃣ **Debezium** → Captures data changes from MySQL binlog.
+### **Conclusion**
+This architecture provides a **scalable and efficient real-time data pipeline**, making it ideal for modern applications requiring **low-latency updates and real-time analytics**. With proper configurations, it enables **fault-tolerant, high-performance event-driven data processing** for various use cases, including **financial systems, e-commerce, and IoT analytics**. More details can be found in the [Debezium](https://debezium.io/documentation/), [Kafka](https://kafka.apache.org/documentation/), and [ClickHouse documentation](https://clickhouse.com/docs/en/).
 
-3️⃣ **Kafka** → Acts as the event broker.
-
-4️⃣ **Kafka Consumers**:
-   - **Microservices** → Process business logic.
-   - **ClickHouse** → Stores analytical data.
-   - **Other downstream applications** → React in real-time.
-
----
-## **Why Use Kafka for CDC?**
-✅ **Decouples Systems** – Captures database changes once and distributes them to multiple consumers.
-
-✅ **Real-Time Updates** – No need for batch jobs or cron scripts.
-
-✅ **Scalability & Fault Tolerance** – Handles large-scale data changes efficiently.
-
-✅ **Data Consistency** – Ensures ordered and durable message delivery.
-
----
-## **Conclusion**
-Debezium, Kafka, and ClickHouse together form a powerful architecture for **real-time data synchronization**. This approach ensures **low-latency data updates**, **eliminates batch jobs**, and provides **real-time analytics**, making it ideal for **high-performance applications** like e-commerce, finance, and IoT.
-
-🚀 **Implementing this architecture guarantees a scalable and efficient real-time data pipeline for modern applications.**
 
