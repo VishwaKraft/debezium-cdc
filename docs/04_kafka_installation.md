@@ -3,24 +3,25 @@
 ## Installation Methods
 
 ### 1. Using Docker Compose (Recommended)
-The easiest way to set up Apache Kafka is by using Docker Compose. Below is a **Docker Compose configuration** that sets up Kafka with ZooKeeper:
+The easiest way to set up Bitnami Kafka is by using Docker Compose. Below is a **Docker Compose configuration** that sets up Kafka with ZooKeeper using **Bitnami images**:
 
 #### Step 1: Create a `docker-compose.yml` file
 
 ```yaml
-version: '3.7'
+version: '3.8'
+
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: bitnami/zookeeper:latest
     container_name: zookeeper
     restart: unless-stopped
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+      ALLOW_ANONYMOUS_LOGIN: yes
     ports:
       - "2181:2181"
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: bitnami/kafka:latest
     container_name: kafka
     restart: unless-stopped
     depends_on:
@@ -29,9 +30,10 @@ services:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      ALLOW_PLAINTEXT_LISTENER: yes
 ```
 
 #### Step 2: Start Kafka
@@ -48,12 +50,13 @@ To check the logs and confirm that Kafka has started successfully:
 docker logs -f kafka
 ```
 
-**Reference:**[Apache Kafka](https://kafka.apache.org/documentation/#connectconfigs) ,[Confluent Kafka Docker Documentation](https://docs.confluent.io/platform/current/installation/docker.html)
+**Reference:** [Bitnami Kafka Docker Hub](https://hub.docker.com/r/bitnami/kafka), [Bitnami Zookeeper Docker Hub](https://hub.docker.com/r/bitnami/zookeeper)
+
 ---
 
 ## Understanding Kafka
 
-### What is Apache Kafka?
+### What is Kafka?
 Kafka is a **distributed event streaming platform** designed for high-throughput, fault-tolerant data pipelines, event-driven architectures, and real-time analytics.
 
 ### Why Use Kafka?
@@ -115,4 +118,3 @@ ZooKeeper helps Kafka manage:
 - [Kafka Streams](https://kafka.apache.org/documentation/streams/)
 - [Kafka Connect](https://docs.confluent.io/platform/current/connect/index.html)
 - [Kafka Security](https://docs.confluent.io/platform/current/kafka/security-overview.html)
-
