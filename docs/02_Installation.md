@@ -51,7 +51,9 @@ To set up the complete system, follow these individual installation guides:
    - Install ClickHouse and configure it to consume Kafka topics.
    - Setup ClickHouse Kafka engine for data ingestion.
    - [Read ClickHouse Sink Installation Guide](https://github.com/Datavolt/debezium-cdc/blob/main/docs/05_Clickhouse_Sink.md)
-   - 
+
+---
+   
 ## Conclusion
 Once you have completed the installation and setup of MySQL, Kafka, Debezium, and ClickHouse, your real-time data synchronization system will be ready. 
 
