@@ -24,4 +24,8 @@
 
 ## Video Resources
 - [Change Data Capture (CDC) | Why & How | Use Case | System Design](https://www.youtube.com/watch?v=dN_11nBcv_A&ab_channel=BinodSumanAcademy)
+- [Materialized Views and Projections Under the Hood](https://www.youtube.com/watch?v=QDAJTKZT8y4&ab_channel=ClickHouse)
+
+## ChatGPT Chats
+- [ClickHouse and MergeTree Engine](https://chatgpt.com/share/67f0c89c-7f64-8013-8f1f-b8e686bfb9d6)
 
