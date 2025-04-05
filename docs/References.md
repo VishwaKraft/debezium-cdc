@@ -22,8 +22,8 @@
 ## ChatGPT Chats
 - [ClickHouse and MergeTree Engine](https://chatgpt.com/share/67f0c89c-7f64-8013-8f1f-b8e686bfb9d6)
 
-## Tools (Possibly Useful)
+<!-- ## Tools (Possibly Useful)
 - [Demo Data Generator](https://www.mockaroo.com/)
 - [JSON Data Debugger](https://jsoncrack.com/editor)
-
+ -->
 
