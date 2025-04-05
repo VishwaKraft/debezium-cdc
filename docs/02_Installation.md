@@ -9,15 +9,25 @@ By following this guide, you will be able to:
 - Deploy Debezium as a Kafka Connect source to capture changes from MySQL.
 - Configure ClickHouse as a sink to store and process streaming data efficiently.
 
-## Prerequisites
-Before you begin, ensure that you meet the following requirements:
+Sure! Here's your original **Prerequisites** section converted to the new concise format you mentioned:
 
-- **Docker and Docker Compose** (if using containerized deployment).
-- **MySQL 8.0+** with binary logging enabled.
-- **Apache Kafka** (latest stable version) installed and configured.
-- **ClickHouse** installed and running.
-- **Kafka Connect with Debezium MySQL connector**.
-- **Appropriate user permissions** in MySQL for Debezium to read binlogs.
+---
+
+### **Prerequisites**
+
+- **Docker**: Ensure Docker and Docker Compose are installed and operational.  
+- **MySQL**: Use MySQL 8.0+ with binary logging enabled and accessible to Debezium.  
+- **Kafka**: Ensure Kafka and Kafka Connect are up and running.  
+- **ClickHouse**: Confirm ClickHouse is installed and reachable.  
+- **Debezium Connector**: Add the Debezium MySQL Source Connector to Kafka Connect.  
+  ```bash
+  curl -O https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/2.6.1.Final/debezium-connector-mysql-2.6.1.Final-plugin.tar.gz
+  tar -xzf debezium-connector-mysql-2.6.1.Final-plugin.tar.gz -C <PLUGIN_PATH>
+  ```
+- **MySQL Permissions**: Ensure the MySQL user has privileges to read binlogs:
+  ```sql
+  GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'debezium'@'%';
+  ```
 
 ## Installation Steps
 To set up the complete system, follow these individual installation guides:
