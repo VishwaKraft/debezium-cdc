@@ -26,6 +26,12 @@
 - [ClickHouse Index Design](http://clickhouse.com/docs/guides/best-practices/sparse-primary-indexes#an-index-design-for-massive-data-scales)
 - [ClickHouse Data Storage](https://clickhouse.com/docs/engines/table-engines/mergetree-family/mergetree#mergetree-data-storage)
 
+## Grafana Docs 
+- [ClickHouse data source plugin for Grafana](https://clickhouse.com/docs/integrations/grafana)
+- [Official ClickHouse data source for Grafana](https://grafana.com/grafana/plugins/grafana-clickhouse-datasource/)
+- [Plugin management](https://grafana.com/docs/grafana/latest/administration/plugin-management/)
+
+
 
 <!-- ## Tools (Possibly Useful)
 - [Demo Data Generator](https://www.mockaroo.com/)
