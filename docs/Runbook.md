@@ -84,7 +84,7 @@ POST http://localhost:8083/connectors
 ### Source Connector: (MySQL)
 ```json
 {
-  "name": "mysql-connector", // connector name
+  "name": "mysql-connector",
   "config": {
     "connector.class": "io.debezium.connector.mysql.MySqlConnector",
     "tasks.max": "1",
@@ -113,7 +113,7 @@ POST http://localhost:8083/connectors
 ### Sink Connector: (Clickhouse)
 ```json
 {
-  "name": "clickhouse-sink-connector", // connector name 
+  "name": "clickhouse-sink-connector", 
   "config": {
     "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
     "tasks.max": "1",
