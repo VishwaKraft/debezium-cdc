@@ -71,15 +71,15 @@
 - Useful for advanced or specialized testing needs.
 
 ---
-## ✅ Prerequisites
+## Prerequisites
 Before installing and using JMeter for load testing, make sure the following prerequisites are met:
 ---
 
-### ☕ Java (Required for JMeter)
+### Java (Required for JMeter)
 
 - JMeter is a Java-based application, so **Java Development Kit (JDK)** must be installed on your system.
 
-- 📥 [Download Java (JDK)](https://www.oracle.com/java/technologies/downloads/)
+- [Download Java (JDK)](https://www.oracle.com/java/technologies/downloads/)
 
 - After installation, verify that Java is installed correctly by running:
 
@@ -193,6 +193,21 @@ This guide explains how to **perform load testing using Apache JMeter** on a **C
 
 ---
 
+### Adding the JDBC Driver to JMeter
+
+1. Download the MySQL **JDBC Connector (JAR file)** from the official site:  
+   👉 [MySQL JDBC Connector](https://dev.mysql.com/downloads/connector/j/)
+
+2. Extract the downloaded archive to get the `.jar` file.
+
+3. Navigate to your **JMeter installation folder**.
+
+4. Open the `lib` directory inside the JMeter folder.
+
+5. Paste the extracted `.jar` file into the `lib` directory.
+
+---
+
 ### Configuring Thread Groups
 - Add a **Thread Group** to simulate multiple virtual users.
   - Example:
@@ -276,6 +291,11 @@ This guide explains how to **perform load testing using Apache JMeter** on a **C
   ```
 - Open `report/index.html` for the summary.
 ---
+
+### Test Plan 
+- You can use already provided test plan 
+- [Mysql Load Testing]()
+
 ### References
 - [Unleash The Power Of Performance Load Testing With Jmeter Tutorial](https://www.youtube.com/watch?v=CPSWuwm8CeU&list=PLVCgi5HZ0-Yt3N9tbjzi-WVQaH9UKkz73&index=1&ab_channel=VikasJha)
 - [Apache JMeter | Load Testing | Performance Testing](https://www.youtube.com/watch?v=o5yJXBQo-XU&list=PLVCgi5HZ0-Yt3N9tbjzi-WVQaH9UKkz73&index=2&pp=iAQB)
