@@ -9,7 +9,7 @@ When data is updated in relational databases like MySQL, downstream applications
   <img src="https://github.com/user-attachments/assets/fcd631b6-6a60-42d1-b331-ea3fa211af92" width="300" height="300" alt="Database Changes">
 </div> -->
 
-### 2️⃣ Schema Evolution & Data Consistency
+### 2️ Schema Evolution & Data Consistency
 As databases evolve over time, schema changes can disrupt downstream applications, leading to inconsistencies. Ensuring seamless schema evolution is crucial to avoid data corruption and maintain smooth application performance.
 
 <!-- <div style="text-align: center;">
@@ -30,7 +30,7 @@ Modern applications leverage event-driven architectures for microservices commun
   <img src="https://github.com/user-attachments/assets/43e2204c-28fb-4107-bc25-09db0a6e3e70" width="300" height="300" alt="Building Event-Driven Systems">
 </div> -->
 
-### 5️⃣ Fault Tolerance & Scalability
+### 5️ Fault Tolerance & Scalability
 Polling-based approaches that periodically query databases introduce performance bottlenecks and are not scalable. A robust solution must provide fault tolerance while efficiently capturing and processing changes.
 
 <!-- <div style="text-align: center;">
@@ -41,7 +41,7 @@ Polling-based approaches that periodically query databases introduce performance
 
 ---
 
-## ✅ Solution: Debezium for Change Data Capture (CDC)
+## Solution: Debezium for Change Data Capture (CDC)
 Debezium is an open-source distributed platform that captures database changes in real-time and streams them to other systems like Kafka. By leveraging Debezium, we can efficiently propagate changes without modifying existing applications.
 
 ### Architecture Overview
