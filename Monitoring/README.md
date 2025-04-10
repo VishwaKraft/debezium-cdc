@@ -1,5 +1,36 @@
 # How to Monitor
+---
 
+## Prerequisites
+
+- MySQL service is running  
+- Kafka service is running  
+
+---
+
+## Create a `.my.cnf` File
+
+Create a file named `.my.cnf` and add the following content:
+
+```ini
+[client]
+user=root
+password=root
+```
+
+This allows tools like the MySQL Exporter to connect without prompting for credentials.
+
+---
+
+## Start the Monitoring Stack
+
+Run the following command to start Prometheus, Grafana, and the MySQL Exporter:
+
+```bash
+docker-compose -f prometheus-mysql.yml up
+```
+
+---
 ## Add the Data Source
 
 1. Open your browser and go to: [http://localhost:3000](http://localhost:3000)  
