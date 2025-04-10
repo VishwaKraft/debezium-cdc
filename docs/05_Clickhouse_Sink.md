@@ -18,32 +18,40 @@ ClickHouse is widely used as a **sink** in real-time data pipelines due to:
 ## Installing ClickHouse
 
 ### 1. Using Docker Compose (Recommended)
-To quickly set up ClickHouse, create a `docker-compose.yml` file:
+To quickly set up ClickHouse, create a `docker-compose-clickhouse.yml` file:
 
-```yaml
-version: '3.7'
+```yml
+version: '3.8'
+
 services:
-  clickhouse:
-    image: clickhouse/clickhouse-server:latest
-    container_name: clickhouse
-    restart: unless-stopped
-    ports:
-      - "8123:8123"  # HTTP Interface
-      - "9000:9000"  # Native TCP Interface
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
-      - ./clickhouse-config.xml:/etc/clickhouse-server/config.xml
-    environment:
-      CLICKHOUSE_USER: admin
-      CLICKHOUSE_PASSWORD: admin
+   clickhouse:
+      image: clickhouse/clickhouse-server:23.3
+      container_name: clickhouse
+      restart: unless-stopped
+      ports:
+         - "8123:8123"   # HTTP interface
+         - "9000:9000"   # Native TCP interface
+         - "9009:9009"   # For Kafka/experimental usage
+      volumes:
+         - clickhouse_data:/var/lib/clickhouse
+      ulimits:
+         nofile:
+            soft: 262144
+            hard: 262144
+      environment:
+         - CLICKHOUSE_DB=cdc_sink
+         - CLICKHOUSE_USER=default
+         - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+         - CLICKHOUSE_PASSWORD=
 
 volumes:
-  clickhouse_data:
+   clickhouse_data:
+
 ```
 
 Start ClickHouse using:
-```sh
-docker-compose up -d
+```bash
+docker-compose -f docker-compose-clichouse.yml up
 ```
 
 **Reference:** [ClickHouse Docker Setup](https://hub.docker.com/r/clickhouse/clickhouse-server)
@@ -66,34 +74,22 @@ ClickHouse can ingest data from Kafka topics **without an external connector** b
 ## Configuring ClickHouse Kafka Integration
 To integrate ClickHouse with Kafka, create a **Kafka Engine table**.
 
-### **Step 1: Create a Kafka Table in ClickHouse**
+### **Step 1: Create a Table in ClickHouse**
 ```sql
-CREATE TABLE kafka_messages (
-    id String,
-    name String,
-    email String,
-    created_at DateTime
-) ENGINE = Kafka
-SETTINGS kafka_broker_list = 'kafka:9092',
-         kafka_topic_list = 'db_cdc',
-         kafka_format = 'JSONEachRow',
-         kafka_group_name = 'clickhouse_cdc';
-```
-
-### **Step 2: Create a Target Table for Processed Data**
-```sql
-CREATE TABLE users (
-    id String,
-    name String,
-    email String,
-    created_at DateTime
+CREATE TABLE `mysql_testdb_server.testdb.user`
+(
+    id Int32,
+   	name String
 ) ENGINE = MergeTree()
 ORDER BY id;
 ```
-
-### **Step 3: Insert Kafka Data into ClickHouse Periodically**
 ```sql
-INSERT INTO users SELECT * FROM kafka_messages;
+CREATE TABLE `mysql_testdb_server.testdb.demo`
+(
+    id Int32,
+   	address String
+) ENGINE = MergeTree()
+ORDER BY id;
 ```
 
 **Reference:** [ClickHouse Kafka Engine](https://clickhouse.com/docs/en/engines/table-engines/integrations/kafka)
@@ -101,26 +97,77 @@ INSERT INTO users SELECT * FROM kafka_messages;
 ## Kafka-ClickHouse Connector Configuration (Alternative Approach)
 Alternatively, you can use **Kafka Connect** with a ClickHouse **JDBC Sink Connector**.
 
-### **Kafka Connect Sink Configuration (`clickhouse-sink.json`)**
+### **Kafka Connect Sink Configuration**
 ```json
 {
-  "name": "clickhouse-sink-connector",
-  "config": {
-    "connector.class": "com.clickhouse.kafka.connect.sink.ClickHouseSinkConnector",
-    "topics": "db_cdc",
-    "clickhouse.server.url": "jdbc:clickhouse://clickhouse:8123",
-    "clickhouse.user": "admin",
-    "clickhouse.password": "admin",
-    "table.name.format": "users"
-  }
+   "name": "clickhouse-sink-connector",
+   "config": {
+      "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
+      "tasks.max": "1",
+
+      "topics": "mysql_testdb_server.testdb.user,mysql_testdb_server.testdb.demo",
+
+      "hostname": "clickhouse",
+      "port": "8123",
+      "database": "cdc_sink",
+      "username": "default",
+      "password": "",
+      "batch.size": "20000",
+      "linger.ms": "200",
+
+      "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+      "value.converter.schemas.enable": "true",
+
+      "transforms": "unwrap",
+      "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+      "transforms.unwrap.drop.tombstones": "true",
+      "transforms.unwrap.delete.handling.mode": "drop",
+
+
+      "errors.tolerance": "all",
+      "errors.log.enable": "true"
+   }
 }
+
 ```
 
 ### **Deploy the Connector**
 1. Start Kafka Connect with the ClickHouse Sink Connector plugin.
 2. Register the connector:
-```sh
-curl -X POST -H "Content-Type: application/json" --data @clickhouse-sink.json http://localhost:8083/connectors
+```bash
+POST http://localhost:8083/connectors
+```
+### Check status of connector
+**Endpoint**
+```bash
+GET http://localhost:8083/connectors/clickhouse-sink-connector/status
+```
+**Expected output:**
+```json
+{
+    "name": "clickhouse-sink-connector",
+    "connector": {
+        "state": "RUNNING",
+        "worker_id": "172.19.0.7:8083"
+    },
+    "tasks": [
+        {
+            "id": 0,
+            "state": "RUNNING",
+            "worker_id": "172.19.0.7:8083"
+        }
+    ],
+    "type": "sink"
+}
+```
+### Restart Sink Connector
+
+```bash
+POST http://localhost:8083/connectors/clickhouse-sink-connector/restart
+```
+### Delete the Sink Connector
+```bash 
+DELETE http://localhost:8083/connectors/clickhouse-sink-connector
 ```
 
 **Reference:** [Kafka Connect ClickHouse Sink](https://github.com/ClickHouse/clickhouse-kafka-connect)
