@@ -5,9 +5,9 @@
 ### 1. Using Docker Compose (Recommended)
 The easiest way to set up Bitnami Kafka is by using Docker Compose. Below is a **Docker Compose configuration** that sets up Kafka with ZooKeeper using **Bitnami images**:
 
-#### Step 1: Create a `docker-compose.yml` file
+#### Step 1: Create a `docker-compose-kafka.yml` file
 
-```yaml
+```yml
 version: '3.8'
 
 services:
@@ -15,32 +15,67 @@ services:
     image: bitnami/zookeeper:latest
     container_name: zookeeper
     restart: unless-stopped
-    environment:
-      ALLOW_ANONYMOUS_LOGIN: yes
     ports:
       - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: yes
+    networks:
+      - cdc-network
 
   kafka:
-    image: bitnami/kafka:latest
+    image: bitnami/kafka:3.5.1
     container_name: kafka
-    restart: unless-stopped
     depends_on:
       - zookeeper
     ports:
       - "9092:9092"
+      - "7071:7071" # JMX Exporter port
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_JMX_PORT: 9999
+      JMX_PORT: 9999
+      KAFKA_OPTS: "-javaagent:/opt/jmx_exporter/jmx_prometheus_javaagent.jar=7071:/opt/jmx_exporter/kafka.yml"
+    volumes:
+      - ./<path-to-jmx-exporter-folder>/jmx_prometheus_javaagent-0.19.0.jar:/opt/jmx_exporter/jmx_prometheus_javaagent.jar
+      - ./<path-to-jmx-exporter-folder>/kafka-2_0_0.yml:/opt/jmx_exporter/kafka.yml
+    networks:
+      - cdc-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    restart: unless-stopped
+    depends_on:
+      - kafka
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - cdc-network
+
+networks:
+  cdc-network:
+    external: true
 ```
+> **Note:** Replace `<path-to-jmx-exporter-folder>` with the actual path where you've placed the `kafka-2_0_0.yml` and `jmx_prometheus_javaagent-0.19.0.jar` files.
+ 
 
 #### Step 2: Start Kafka
 Run the following command in the same directory where `docker-compose.yml` is located:
 
-```sh
-docker-compose up -d
+```bash
+docker-compose -f docker-compose-kafka.yml up
 ```
 
 #### Step 3: Verify Kafka is Running
