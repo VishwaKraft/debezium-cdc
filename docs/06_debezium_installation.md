@@ -27,51 +27,42 @@ Debezium can be run as an independent service with its own configuration and log
 Debezium runs as a Kafka Connect source connector, making it easy to integrate with Kafka-based architectures.
 
 ## Setting Up Debezium with Docker Compose
-Create a `docker-compose.yml` file to set up Debezium with Kafka, Zookeeper, and Kafka Connect.
+Create a `docker-compose-debezium.yml` file to set up Debezium with Kafka, Zookeeper, and Kafka Connect.
 
-```yaml
-version: '3.7'
+```yml
+version: '3.8'
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
-    restart: unless-stopped
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+   connect:
+      image: quay.io/debezium/connect:1.9
+      container_name: debezium
+      ports:
+         - 8083:8083
+      depends_on:
+         - kafka
+      links:
+         - kafka
+         - zookeeper
+      environment:
+         - BOOTSTRAP_SERVERS=kafka:9092
+         - GROUP_ID=1
+         - CONFIG_STORAGE_TOPIC=my_connect_configs
+         - OFFSET_STORAGE_TOPIC=my_connect_offsets
+         - STATUS_STORAGE_TOPIC=my_connect_statuses
+   debezium-ui:
+      image: debezium/debezium-ui:latest
+      container_name: debezium-ui
+      ports:
+         - 8084:8080
+      depends_on:
+         - connect
+      environment:
+         - KAFKA_CONNECT_URIS=http://connect:8083
 
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    container_name: kafka
-    restart: unless-stopped
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_BROKER_ID: 1
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    ports:
-      - "9092:9092"
-
-  connect:
-    image: debezium/connect:latest
-    container_name: kafka-connect
-    restart: unless-stopped
-    depends_on:
-      - kafka
-    environment:
-      BOOTSTRAP_SERVERS: kafka:9092
-      GROUP_ID: "debezium"
-      CONFIG_STORAGE_TOPIC: "connect_configs"
-      OFFSET_STORAGE_TOPIC: "connect_offsets"
-      STATUS_STORAGE_TOPIC: "connect_status"
-    ports:
-      - "8083:8083"
 ```
 
 Start the services:
 ```sh
-docker-compose up -d
+docker-compose -f docker-compose-debezium.yml up
 ```
 
 **Reference:** [Debezium with Docker](https://debezium.io/documentation/reference/3.1/operations/installation.html)
@@ -81,24 +72,65 @@ Once Debezium is running, register the MySQL connector using the following JSON 
 
 ```json
 {
-  "name": "inventory-connector",
-  "config": {
-    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
-    "database.hostname": "mysql",
-    "database.port": "3306",
-    "database.user": "debezium",
-    "database.password": "dbz",
-    "database.server.id": "184054",
-    "database.include.list": "inventory",
-    "database.history.kafka.bootstrap.servers": "kafka:9092",
-    "database.history.kafka.topic": "schema-changes.inventory"
-  }
+   "name": "mysql-connector",
+   "config": {
+      "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+      "tasks.max": "1",
+      "database.hostname": "host.docker.internal",
+      "database.port": "3307",
+      "database.user": "debezium",
+      "database.password": "password",
+      "database.server.id": "223344",
+      "database.server.name": "mysql_testdb_server",
+      "database.include.list": "testdb",
+      "table.include.list": "testdb.user,testdb.demo",
+      "database.history.kafka.bootstrap.servers": "kafka:9092",
+      "database.history.kafka.topic": "mysql_testdb_server.schema-changes",
+      "database.connection.url": "jdbc:mysql://host.docker.internal:3307/testdb?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
+      "database.history.skip.unreachable.databases": "true",
+      "snapshot.locking.mode": "none"
+   }
 }
 ```
+> Replace `testdb` with the table you want to capture changes from.
 
-Register the connector:
+> We use `host.docker.internal` because of our mysql service is running on a docker compose on port `3307`. So change this accordingly.
+
+### Register the connector:
 ```sh
-curl -X POST -H "Content-Type: application/json" --data @mysql-connector.json http://localhost:8083/connectors
+POST http://localhost:8083/connectors/
+```
+### Check status of connector
+**Endpoint**
+```bash
+GET http://localhost:8083/connectors/mysql-connector/status
+```
+**Expected output:**
+```json
+{
+    "name": "mysql-connector",
+    "connector": {
+        "state": "RUNNING",
+        "worker_id": "172.19.0.7:8083"
+    },
+    "tasks": [
+        {
+            "id": 0,
+            "state": "RUNNING",
+            "worker_id": "172.19.0.7:8083"
+        }
+    ],
+    "type": "source"
+}
+```
+### Restart Sink Connector
+
+```bash
+POST http://localhost:8083/connectors/mysql-connector/restart
+```
+### Delete the Sink Connector
+```bash 
+DELETE http://localhost:8083/connectors/mysql-connector
 ```
 
 **Reference:** [Debezium MySQL Connector](https://debezium.io/documentation/reference/3.1/connectors/mysql.html)
