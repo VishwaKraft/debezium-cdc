@@ -23,7 +23,7 @@ Traditional batch processing methods introduce significant delays in data synchr
   <img src="https://github.com/user-attachments/assets/070d3264-659a-449e-940d-a920a7f569a2" width="300" height="300" alt="Keeping Multiple Systems in Sync">
 </div> -->
 
-### 4️⃣ Building Event-Driven Systems
+### 4️ Building Event-Driven Systems
 Modern applications leverage event-driven architectures for microservices communication, real-time analytics, and fraud detection. Streaming database changes as events without modifying existing applications is a key challenge.
 
 <!-- <div style="text-align: center;">
