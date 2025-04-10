@@ -294,7 +294,7 @@ This guide explains how to **perform load testing using Apache JMeter** on a **C
 
 ### Test Plan 
 - You can use already provided test plan 
-- [Mysql Load Testing]()
+- [Mysql Load Testing](https://github.com/Datavolt/debezium-cdc/blob/main/TestPlan/MySqlTestPlan.jmx)
 
 ### References
 - [Unleash The Power Of Performance Load Testing With Jmeter Tutorial](https://www.youtube.com/watch?v=CPSWuwm8CeU&list=PLVCgi5HZ0-Yt3N9tbjzi-WVQaH9UKkz73&index=1&ab_channel=VikasJha)
