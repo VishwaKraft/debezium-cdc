@@ -20,6 +20,12 @@ services:
       - CLICKHOUSE_USER=default
       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
       - CLICKHOUSE_PASSWORD=
+    networks:
+      - cdc-network
 
 volumes:
   clickhouse_data:
+
+networks:
+  cdc-network:
+    external: true

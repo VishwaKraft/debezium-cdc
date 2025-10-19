@@ -1,27 +1,38 @@
 version: '3.8'
 services:
   connect:
-    image: quay.io/debezium/connect:1.9
+    image: quay.io/debezium/connect:2.6.2.Final
     container_name: debezium
+    platform: linux/amd64
     ports:
       - 8083:8083
-    depends_on:
-      - kafka
-    links:
-      - kafka
-      - zookeeper
+      - 5005:5005
     environment:
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=1
       - CONFIG_STORAGE_TOPIC=my_connect_configs
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - CONNECT_PLUGIN_PATH=/kafka/connect,/kafka/connect-plugins
+      - KAFKA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+
+    volumes:
+      - ./debezium-plugins:/kafka/connect-plugins
+    networks:
+      - cdc-network
   debezium-ui:
     image: debezium/debezium-ui:latest
     container_name: debezium-ui
+    platform: linux/amd64
     ports:
       - 8084:8080
     depends_on:
       - connect
     environment:
       - KAFKA_CONNECT_URIS=http://connect:8083
+    networks:
+      - cdc-network
+
+networks:
+  cdc-network:
+    external: true

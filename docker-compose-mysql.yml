@@ -18,6 +18,12 @@ services:
       --binlog-row-image=FULL
       --enforce-gtid-consistency=ON
       --gtid-mode=ON
+    networks:
+      - cdc-network
 
 volumes:
   mysql_data:
+
+networks:
+  cdc-network:
+    external: true
