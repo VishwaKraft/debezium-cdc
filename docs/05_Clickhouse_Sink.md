@@ -20,35 +20,6 @@ ClickHouse is widely used as a **sink** in real-time data pipelines due to:
 ### 1. Using Docker Compose (Recommended)
 To quickly set up ClickHouse, create a `docker-compose-clickhouse.yml` file:
 
-```yml
-version: '3.8'
-
-services:
-   clickhouse:
-      image: clickhouse/clickhouse-server:23.3
-      container_name: clickhouse
-      restart: unless-stopped
-      ports:
-         - "8123:8123"   # HTTP interface
-         - "9000:9000"   # Native TCP interface
-         - "9009:9009"   # For Kafka/experimental usage
-      volumes:
-         - clickhouse_data:/var/lib/clickhouse
-      ulimits:
-         nofile:
-            soft: 262144
-            hard: 262144
-      environment:
-         - CLICKHOUSE_DB=cdc_sink
-         - CLICKHOUSE_USER=default
-         - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
-         - CLICKHOUSE_PASSWORD=
-
-volumes:
-   clickhouse_data:
-
-```
-
 Start ClickHouse using:
 ```bash
 docker-compose -f docker-compose-clichouse.yml up
@@ -74,24 +45,6 @@ ClickHouse can ingest data from Kafka topics **without an external connector** b
 ## Configuring ClickHouse Kafka Integration
 To integrate ClickHouse with Kafka, create a **Kafka Engine table**.
 
-### **Step 1: Create a Table in ClickHouse**
-```sql
-CREATE TABLE `mysql_testdb_server.testdb.user`
-(
-    id Int32,
-   	name String
-) ENGINE = MergeTree()
-ORDER BY id;
-```
-```sql
-CREATE TABLE `mysql_testdb_server.testdb.demo`
-(
-    id Int32,
-   	address String
-) ENGINE = MergeTree()
-ORDER BY id;
-```
-
 **Reference:** [ClickHouse Kafka Engine](https://clickhouse.com/docs/en/engines/table-engines/integrations/kafka)
 
 ## Kafka-ClickHouse Connector Configuration (Alternative Approach)
@@ -102,30 +55,18 @@ Alternatively, you can use **Kafka Connect** with a ClickHouse **JDBC Sink Conne
 {
    "name": "clickhouse-sink-connector",
    "config": {
-      "connector.class": "com.clickhouse.kafka.connect.ClickHouseSinkConnector",
+      "connector.class": "com.vishwakraft.clickhouse.sink.connector.ClickHouseSinkConnector",
       "tasks.max": "1",
-
-      "topics": "mysql_testdb_server.testdb.user,mysql_testdb_server.testdb.demo",
-
-      "hostname": "clickhouse",
-      "port": "8123",
-      "database": "cdc_sink",
-      "username": "default",
-      "password": "",
-      "batch.size": "20000",
-      "linger.ms": "200",
-
-      "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-      "value.converter.schemas.enable": "true",
-
-      "transforms": "unwrap",
-      "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
-      "transforms.unwrap.drop.tombstones": "true",
-      "transforms.unwrap.delete.handling.mode": "drop",
-
-
-      "errors.tolerance": "all",
-      "errors.log.enable": "true"
+      "schemas.enable": "false",
+      "connection.pool.disable": "true",
+      "topics": "mysql_testdb.testdb.user",
+      "clickhouse.server.url": "clickhouse",
+      "clickhouse.server.user": "default",
+      "clickhouse.server.password": "",
+      "clickhouse.topic2table.map": "mysql_testdb.testdb.user:user",
+      "clickhouse.database.override.map":"testdb:cdc_sink",
+      "auto.create.tables": "true",
+      "clickhouse.auto.evolve": "true"
    }
 }
 
