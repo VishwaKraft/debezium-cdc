@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim-faststart
+    container_name: oracle-cdc
+    restart: unless-stopped
+    environment:
+      ORACLE_PASSWORD: oracle123
+      ORACLE_DATABASE: TESTDB
+      APP_USER: debezium
+      APP_USER_PASSWORD: dbz123
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - cdc-network
+
+  # Oracle SQL Developer Web (optional - for database management)
+  # Uncomment if you need a web-based SQL client
+  # oracle-ords:
+  #   image: container-registry.oracle.com/database/ords:latest
+  #   container_name: oracle-ords
+  #   restart: unless-stopped
+  #   depends_on:
+  #     oracle:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8181:8181"
+  #   environment:
+  #     ORACLE_HOST: oracle
+  #     ORACLE_PORT: 1521
+  #     ORACLE_SERVICE: XEPDB1
+  #     ORDS_USER: ORDS_PUBLIC_USER
+  #     ORDS_PASSWORD: oracle123
+  #   networks:
+  #     - cdc-network
+
+volumes:
+  oracle_data:
+
+networks:
+  cdc-network:
+
